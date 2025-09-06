@@ -55,6 +55,10 @@ public class Carrito {
         productos.add(producto);
     }
 
+    public void agregarProductos(List<ProductoInterface> productos) {
+        this.productos.addAll(productos);
+    }
+
     public void eliminarProducto(ProductoInterface producto) {
         productos.remove(producto);
     }
