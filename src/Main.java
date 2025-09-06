@@ -7,6 +7,8 @@ import Modelos.Usuario.UsuarioPreferencias;
 import Modelos.Historial.HistorialCompras;
 import Modelos.Producto.ProductoDigital;
 import Modelos.Producto.ProductoFisico;
+import Repositorios.ProductoRepository;
+import Repositorios.ProductoRepositoryInterface;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,13 +16,10 @@ public class Main {
         usuario.setHistorialCompras(new HistorialCompras(usuario));
         Carrito carrito = new Carrito("id_carrito_1", usuario);
 
-        ProductoInterface p1 = new ProductoDigital("1", "producto 1", 1234.2, 200, "jpg", null);
-        ProductoInterface p2 = new ProductoDigital("2", "producto 2", 444.2, 100, "zip", null);
-        ProductoInterface p3 = new ProductoFisico("3", "producto 3", 1234.2, 200, 100.2, 100.2, 100.2, 100.2);
+        ProductoRepositoryInterface productoRepository = new ProductoRepository();
+        List<ProductoInterface> productos = productoRepository.obtenerProductos();
 
-        carrito.agregarProducto(p1);
-        carrito.agregarProducto(p2);
-        carrito.agregarProducto(p3);
+        carrito.agregarProductos(productos);
         
         for (ProductoInterface p : carrito.getProductos()) {
             System.out.println("Id: " + p.getId());
