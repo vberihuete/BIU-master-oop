@@ -15,6 +15,8 @@ import Factory.FabricaEntidades;
 import Modelos.Usuario.UsuarioCliente;
 import Configuracion.ConfiguracionSistema;
 import Configuracion.ApplicationTheme;
+import Observer.NotificationManager;
+import Observer.TipoEvento;
 
 public class Main {
     private static FabricaEntidadesInterface fabricaEntidades = new FabricaEntidades();
@@ -37,6 +39,11 @@ public class Main {
 
         // Demostración de Configuración del sistema
         demostrarConfiguracionSistema();
+
+        System.out.println("\n" + "=".repeat(60) + "\n");
+
+        // Demostración del patrón Observer para notificaciones
+        demostrarSistemaNotificaciones();
 
         System.out.println("\n=== FIN DE LA DEMOSTRACIÓN ===");
     }
@@ -195,5 +202,118 @@ public class Main {
         System.out.println("Database URL: " + configuracionSistema.getDatabaseUrl());
         System.out.println("CDN URL: " + configuracionSistema.getCdnURL());
         System.out.println("Theme: " + configuracionSistema.getTheme());
+    }
+
+    /**
+     * Demuestra el uso del patrón Observer para notificaciones
+     */
+    private static void demostrarSistemaNotificaciones() {
+        System.out.println("5. SISTEMA DE NOTIFICACIONES - Patrón Observer");
+        System.out.println("=".repeat(50));
+        
+        // Obtener la instancia del NotificationManager
+        NotificationManager notificador = NotificationManager.getInstancia();
+        
+        // Configurar observadores usando closures (lambdas)
+        configurarObservadores(notificador);
+        
+        // Simular diferentes eventos del sistema
+        simularEventosSistema(notificador);
+        
+        // Mostrar estado del sistema
+        System.out.println(notificador.obtenerEstadoSistema());
+    }
+    
+    /**
+     * Configura diferentes observadores para eventos específicos
+     */
+    private static void configurarObservadores(NotificationManager notificador) {
+        System.out.println("\n--- Configurando Observadores ---");
+        
+        // Observador para eventos de orden
+        notificador.registrarObserver(TipoEvento.ORDEN_CREADA, (datos) -> {
+            System.out.println("🛒 [UI] Nueva orden creada - Mostrando notificación al usuario");
+            if (datos != null) {
+                System.out.println("   📋 Detalles: " + datos.toString());
+            }
+        });
+        
+        notificador.registrarObserver(TipoEvento.ORDEN_PAGADA, (_) -> {
+            System.out.println("💳 [PAGO] Orden pagada - Procesando pago");
+            System.out.println("   ✅ Pago confirmado y procesado");
+        });
+        
+        // Observador para eventos de inventario
+        notificador.registrarObserver(TipoEvento.STOCK_BAJO, (_) -> {
+            System.out.println("⚠️ [INVENTARIO] Stock bajo detectado");
+            System.out.println("   📦 Generando orden de reabastecimiento");
+        });
+        
+        notificador.registrarObserver(TipoEvento.STOCK_AGOTADO, (_) -> {
+            System.out.println("🚨 [INVENTARIO] Producto agotado");
+            System.out.println("   📞 Notificando al proveedor urgentemente");
+        });
+        
+        // Observador para eventos de pago
+        notificador.registrarObserver(TipoEvento.PAGO_EXITOSO, (_) -> {
+            System.out.println("✅ [SISTEMA] Pago exitoso");
+            System.out.println("   📧 Enviando confirmación por email");
+        });
+        
+        notificador.registrarObserver(TipoEvento.PAGO_FALLIDO, (_) -> {
+            System.out.println("❌ [SISTEMA] Pago fallido");
+            System.out.println("   🔄 Reintentando proceso de pago");
+        });
+        
+        // Observador para eventos de usuario
+        notificador.registrarObserver(TipoEvento.USUARIO_REGISTRADO, (_) -> {
+            System.out.println("👤 [USUARIO] Nuevo usuario registrado");
+            System.out.println("   🎉 Enviando email de bienvenida");
+        });
+        
+        // Observador múltiple para eventos de sistema
+        notificador.registrarObserver(TipoEvento.SISTEMA_ERROR, (_) -> {
+            System.out.println("🔴 [SISTEMA] Error detectado");
+            System.out.println("   📝 Registrando en log de errores");
+        });
+        
+        notificador.registrarObserver(TipoEvento.SISTEMA_MANTENIMIENTO, (_) -> {
+            System.out.println("🔧 [SISTEMA] Mantenimiento programado");
+            System.out.println("   📢 Notificando a todos los usuarios");
+        });
+    }
+    
+    /**
+     * Simula diferentes eventos del sistema para demostrar las notificaciones
+     */
+    private static void simularEventosSistema(NotificationManager notificador) {
+        System.out.println("\n--- Simulando Eventos del Sistema ---");
+        
+        // Simular creación de orden
+        notificador.notificarEvento(TipoEvento.ORDEN_CREADA, "Orden #12345 - Cliente: Juan Pérez - Total: $299.99");
+        
+        // Simular pago exitoso
+        notificador.notificarEvento(TipoEvento.PAGO_EXITOSO, "Transacción #TXN789 - Monto: $299.99");
+        
+        // Simular stock bajo
+        notificador.notificarEvento(TipoEvento.STOCK_BAJO, "Producto: LAPTOP001 - Stock actual: 5 - Mínimo: 10");
+        
+        // Simular registro de usuario
+        notificador.notificarEvento(TipoEvento.USUARIO_REGISTRADO, "Usuario: maria.garcia@email.com");
+        
+        // Simular error del sistema
+        notificador.notificarEvento(TipoEvento.SISTEMA_ERROR, "Error de conexión a base de datos");
+        
+        // Simular stock agotado
+        notificador.notificarEvento(TipoEvento.STOCK_AGOTADO, "Producto: MOUSE001 - Mouse Inalámbrico");
+        
+        // Simular pago fallido
+        notificador.notificarEvento(TipoEvento.PAGO_FALLIDO, "Tarjeta declinada - Código: 51");
+        
+        // Simular mantenimiento del sistema
+        notificador.notificarEvento(TipoEvento.SISTEMA_MANTENIMIENTO, "Mantenimiento programado para las 2:00 AM");
+        
+        // Demostrar evento sin datos
+        notificador.notificarEvento(TipoEvento.ORDEN_ENVIADA);
     }
 }
