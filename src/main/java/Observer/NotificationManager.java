@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public class NotificationManager {
     
     private static NotificationManager instancia;
-    private Map<TipoEvento, List<Consumer<Object>>> observadores;
+    private final Map<TipoEvento, List<Consumer<Object>>> observadores;
     private boolean notificacionesActivas;
     
     /**

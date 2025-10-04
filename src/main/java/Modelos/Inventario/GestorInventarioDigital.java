@@ -10,7 +10,7 @@ import java.util.List;
  * Maneja el inventario de productos digitales como archivos, software, etc.
  */
 public class GestorInventarioDigital extends GestorInventario {
-    private List<ProductoInterface> productosDigitales;
+    private final List<ProductoInterface> productosDigitales;
     private String servidorAlmacenamiento;
     
     public GestorInventarioDigital(String nombreInventario, String ubicacion, String servidorAlmacenamiento) {
@@ -21,9 +21,8 @@ public class GestorInventarioDigital extends GestorInventario {
     
     @Override
     public boolean añadirProducto(ProductoInterface producto) {
-        if (producto instanceof ProductoDigital) {
+        if (producto instanceof ProductoDigital productoDigital) {
             // Verificar que el producto digital tenga URL válida
-            ProductoDigital productoDigital = (ProductoDigital) producto;
             if (productoDigital.getUrl() != null && !productoDigital.getUrl().isEmpty()) {
                 productosDigitales.add(producto);
                 System.out.println("Producto digital añadido: " + producto.getNombre() + 
@@ -88,8 +87,7 @@ public class GestorInventarioDigital extends GestorInventario {
      */
     public boolean verificarDisponibilidadUrl(String idProducto) {
         ProductoInterface producto = buscarProducto(idProducto);
-        if (producto instanceof ProductoDigital) {
-            ProductoDigital productoDigital = (ProductoDigital) producto;
+        if (producto instanceof ProductoDigital productoDigital) {
             // Simulación de verificación de URL
             boolean urlDisponible = productoDigital.getUrl() != null && 
                                   !productoDigital.getUrl().isEmpty() && 

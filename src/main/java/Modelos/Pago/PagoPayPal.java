@@ -4,35 +4,30 @@ import java.util.Date;
 import java.util.UUID;
 
 /**
- * Implementación del proceso de pago para tarjetas de crédito/débito.
- * Maneja pagos realizados con tarjetas bancarias.
+ * Implementación del proceso de pago para PayPal.
+ * Maneja pagos realizados a través de la plataforma PayPal.
  */
-public class PagoTarjeta implements ProcesoPago {
+public class PagoPayPal implements ProcesoPago {
     private String idTransaccion;
     private Double monto;
     private String moneda;
     private Date fechaPago;
-    private String numeroTarjeta;
-    private String cvv;
-    private String fechaVencimiento;
-    private String nombreTitular;
+    private final String emailPayPal;
     private EstadoPago estado;
+    private String tokenAcceso;
     
-    public PagoTarjeta(String numeroTarjeta, String cvv, String fechaVencimiento, String nombreTitular) {
-        this.numeroTarjeta = numeroTarjeta;
-        this.cvv = cvv;
-        this.fechaVencimiento = fechaVencimiento;
-        this.nombreTitular = nombreTitular;
+    public PagoPayPal(String emailPayPal) {
+        this.emailPayPal = emailPayPal;
         this.estado = EstadoPago.PENDIENTE;
     }
     
     @Override
     public boolean iniciarPago(Double monto, String moneda, String datosPago) {
         try {
-            // Validar datos de la tarjeta
-            if (!validarDatosTarjeta()) {
+            // Validar email de PayPal
+            if (!validarEmailPayPal()) {
                 this.estado = EstadoPago.ERROR;
-                System.out.println("Error: Datos de tarjeta inválidos");
+                System.out.println("Error: Email de PayPal inválido");
                 return false;
             }
             
@@ -42,19 +37,19 @@ public class PagoTarjeta implements ProcesoPago {
             this.fechaPago = new Date();
             this.estado = EstadoPago.INICIADO;
             
-            // Enmascarar número de tarjeta para seguridad
-            String tarjetaEnmascarada = enmascararTarjeta(numeroTarjeta);
+            // Simular obtención de token de acceso de PayPal
+            this.tokenAcceso = generarTokenAcceso();
             
-            System.out.println("Pago con tarjeta iniciado:");
+            System.out.println("Pago con PayPal iniciado:");
             System.out.println("  - ID Transacción: " + idTransaccion);
             System.out.println("  - Monto: " + monto + " " + moneda);
-            System.out.println("  - Tarjeta: " + tarjetaEnmascarada);
-            System.out.println("  - Titular: " + nombreTitular);
+            System.out.println("  - Email PayPal: " + emailPayPal);
+            System.out.println("  - Token de acceso obtenido");
             
             return true;
         } catch (Exception e) {
             this.estado = EstadoPago.ERROR;
-            System.out.println("Error al iniciar pago con tarjeta: " + e.getMessage());
+            System.out.println("Error al iniciar pago con PayPal: " + e.getMessage());
             return false;
         }
     }
@@ -71,16 +66,18 @@ public class PagoTarjeta implements ProcesoPago {
             return false;
         }
         
-        // Simular verificación con el banco
-        boolean verificado = verificarConBanco();
+        // Simular verificación con PayPal API
+        boolean verificado = verificarConPayPal();
         
         if (verificado) {
             this.estado = EstadoPago.VERIFICADO;
-            System.out.println("Pago verificado exitosamente con el banco");
+            System.out.println("Pago verificado exitosamente con PayPal");
+            System.out.println("  - Saldo disponible verificado");
+            System.out.println("  - Cuenta PayPal activa y válida");
             return true;
         } else {
             this.estado = EstadoPago.ERROR;
-            System.out.println("Error: El banco rechazó la transacción");
+            System.out.println("Error: PayPal rechazó la transacción");
             return false;
         }
     }
@@ -97,18 +94,19 @@ public class PagoTarjeta implements ProcesoPago {
             return false;
         }
         
-        // Simular procesamiento final del pago
-        boolean procesado = procesarPagoFinal();
+        // Simular procesamiento final con PayPal
+        boolean procesado = procesarPagoFinalPayPal();
         
         if (procesado) {
             this.estado = EstadoPago.CONFIRMADO;
-            System.out.println("Pago confirmado exitosamente");
-            System.out.println("  - Monto cobrado: " + monto + " " + moneda);
+            System.out.println("Pago confirmado exitosamente con PayPal");
+            System.out.println("  - Monto transferido: " + monto + " " + moneda);
             System.out.println("  - Fecha: " + fechaPago);
+            System.out.println("  - Comisión PayPal aplicada");
             return true;
         } else {
             this.estado = EstadoPago.ERROR;
-            System.out.println("Error al procesar el pago final");
+            System.out.println("Error al procesar el pago final con PayPal");
             return false;
         }
     }
@@ -154,55 +152,42 @@ public class PagoTarjeta implements ProcesoPago {
         }
         
         this.estado = EstadoPago.CANCELADO;
-        System.out.println("Pago cancelado exitosamente");
+        System.out.println("Pago con PayPal cancelado exitosamente");
         return true;
     }
     
     @Override
     public String obtenerDetallesMetodoPago() {
-        return "Pago con Tarjeta - " + enmascararTarjeta(numeroTarjeta) + 
-               " - Titular: " + nombreTitular;
+        return "Pago con PayPal - " + emailPayPal;
     }
     
     /**
-     * Valida los datos básicos de la tarjeta
-     * @return true si los datos son válidos
+     * Valida el formato del email de PayPal
+     * @return true si el email es válido
      */
-    private boolean validarDatosTarjeta() {
-        return numeroTarjeta != null && numeroTarjeta.length() >= 13 && numeroTarjeta.length() <= 19 &&
-               cvv != null && cvv.length() >= 3 && cvv.length() <= 4 &&
-               fechaVencimiento != null && !fechaVencimiento.isEmpty() &&
-               nombreTitular != null && !nombreTitular.trim().isEmpty();
+    private boolean validarEmailPayPal() {
+        return emailPayPal != null && 
+               emailPayPal.contains("@") && 
+               emailPayPal.contains(".") &&
+               emailPayPal.length() > 5;
     }
     
     /**
-     * Enmascara el número de tarjeta para seguridad
-     * @param numeroTarjeta El número de tarjeta original
-     * @return El número de tarjeta enmascarado
+     * Simula la verificación con la API de PayPal
+     * @return true si PayPal aprueba la transacción
      */
-    private String enmascararTarjeta(String numeroTarjeta) {
-        if (numeroTarjeta.length() < 8) {
-            return "****";
-        }
-        return numeroTarjeta.substring(0, 4) + "****" + numeroTarjeta.substring(numeroTarjeta.length() - 4);
+    private boolean verificarConPayPal() {
+        // Simulación: 97% de éxito en la verificación con PayPal
+        return Math.random() > 0.03;
     }
     
     /**
-     * Simula la verificación con el banco
-     * @return true si el banco aprueba la transacción
-     */
-    private boolean verificarConBanco() {
-        // Simulación: 95% de éxito en la verificación
-        return Math.random() > 0.05;
-    }
-    
-    /**
-     * Simula el procesamiento final del pago
+     * Simula el procesamiento final del pago con PayPal
      * @return true si el pago se procesa exitosamente
      */
-    private boolean procesarPagoFinal() {
-        // Simulación: 98% de éxito en el procesamiento
-        return Math.random() > 0.02;
+    private boolean procesarPagoFinalPayPal() {
+        // Simulación: 99% de éxito en el procesamiento con PayPal
+        return Math.random() > 0.01;
     }
     
     /**
@@ -210,15 +195,42 @@ public class PagoTarjeta implements ProcesoPago {
      * @return El ID de la transacción
      */
     private String generarIdTransaccion() {
-        return "TXN_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        return "PP_" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
     
-    // Getters para datos específicos de tarjeta (sin incluir datos sensibles)
-    public String getNombreTitular() {
-        return nombreTitular;
+    /**
+     * Genera un token de acceso simulado para PayPal
+     * @return El token de acceso
+     */
+    private String generarTokenAcceso() {
+        return "TOKEN_" + UUID.randomUUID().toString().substring(0, 12).toUpperCase();
     }
     
-    public String getFechaVencimiento() {
-        return fechaVencimiento;
+    /**
+     * Calcula la comisión de PayPal (simulada)
+     * @return El monto de la comisión
+     */
+    public Double calcularComisionPayPal() {
+        // PayPal cobra aproximadamente 2.9% + $0.30 USD
+        Double comisionPorcentaje = monto * 0.029;
+        Double comisionFija = 0.30;
+        return comisionPorcentaje + comisionFija;
+    }
+    
+    /**
+     * Obtiene el monto total incluyendo comisiones
+     * @return El monto total
+     */
+    public Double getMontoTotal() {
+        return monto + calcularComisionPayPal();
+    }
+    
+    // Getters específicos de PayPal
+    public String getEmailPayPal() {
+        return emailPayPal;
+    }
+    
+    public String getTokenAcceso() {
+        return tokenAcceso;
     }
 }
