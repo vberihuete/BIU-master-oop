@@ -17,9 +17,12 @@ import Configuracion.ConfiguracionSistema;
 import Configuracion.ApplicationTheme;
 import Observer.NotificationManager;
 import Observer.TipoEvento;
+import Excepciones.InventarioInsuficienteExcepcion;
+import Excepciones.ProductoNoEncontradoExcepcion;
+import Excepciones.PagoFallidoExcepcion;
 
 public class Main {
-    private static FabricaEntidadesInterface fabricaEntidades = new FabricaEntidades();
+    private static final FabricaEntidadesInterface fabricaEntidades = new FabricaEntidades();
 
     public static void main(String[] args) {
 // Demostración de gestión de inventario con clases abstractas
@@ -52,6 +55,7 @@ public class Main {
      * Demuestra el uso de clases abstractas para gestión de inventario
      */
     private static void demostrarGestionInventario() {
+        try {
         System.out.println("1. GESTIÓN DE INVENTARIO - Clases Abstractas");
         System.out.println("=".repeat(50));
 
@@ -117,6 +121,11 @@ public class Main {
         for (ProductoInterface p : gestorFisico.obtenerProductos()) {
             System.out.println("- " + p.getNombre() + " (Stock: " + p.getCantidad() + ")");
         }
+        } catch (InventarioInsuficienteExcepcion e) {
+            System.out.println("Error de inventario: " + e.getMessage());
+        } catch (ProductoNoEncontradoExcepcion e) {
+            System.out.println("Error de producto: " + e.getMessage());
+        }
     }
 
     /**
@@ -157,6 +166,7 @@ public class Main {
      * Procesa un pago completo usando la interfaz ProcesoPago
      */
     private static void procesarPago(ProcesoPago procesoPago, Double monto, String moneda) {
+        try {
         // Paso 1: Iniciar pago
         if (procesoPago.iniciarPago(monto, moneda, "Datos de prueba")) {
             System.out.println("✓ Pago iniciado exitosamente");
@@ -178,6 +188,9 @@ public class Main {
             }
         } else {
             System.out.println("✗ Error al iniciar el pago");
+        }
+        } catch (PagoFallidoExcepcion e) {
+            System.out.println("✗ Error en el proceso de pago: " + e.getMessage());
         }
     }
 
@@ -234,7 +247,7 @@ public class Main {
         notificador.registrarObserver(TipoEvento.ORDEN_CREADA, (datos) -> {
             System.out.println("🛒 [UI] Nueva orden creada - Mostrando notificación al usuario");
             if (datos != null) {
-                System.out.println("   📋 Detalles: " + datos.toString());
+                System.out.println("   📋 Detalles: " + datos);
             }
         });
         

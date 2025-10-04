@@ -1,5 +1,6 @@
 package Modelos.Pago;
 
+import Excepciones.PagoFallidoExcepcion;
 import java.util.Date;
 
 /**
@@ -15,22 +16,25 @@ public interface ProcesoPago {
      * @param moneda La moneda del pago (ej: "USD", "EUR", "MXN")
      * @param datosPago Datos específicos del método de pago
      * @return true si el pago se inició correctamente, false en caso contrario
+     * @throws PagoFallidoExcepcion Si el pago falla por datos inválidos o errores del sistema
      */
-    boolean iniciarPago(Double monto, String moneda, String datosPago);
+    boolean iniciarPago(Double monto, String moneda, String datosPago) throws PagoFallidoExcepcion;
     
     /**
      * Verifica el estado del pago y valida los datos.
      * @param idTransaccion El ID de la transacción a verificar
      * @return true si el pago es válido y puede proceder, false en caso contrario
+     * @throws PagoFallidoExcepcion Si la verificación falla por datos inválidos o errores del sistema
      */
-    boolean verificarPago(String idTransaccion);
+    boolean verificarPago(String idTransaccion) throws PagoFallidoExcepcion;
     
     /**
      * Confirma y finaliza el proceso de pago.
      * @param idTransaccion El ID de la transacción a confirmar
      * @return true si el pago se confirmó exitosamente, false en caso contrario
+     * @throws PagoFallidoExcepcion Si la confirmación falla por datos inválidos o errores del sistema
      */
-    boolean confirmarPago(String idTransaccion);
+    boolean confirmarPago(String idTransaccion) throws PagoFallidoExcepcion;
     
     /**
      * Obtiene el estado actual del pago.

@@ -1,6 +1,8 @@
 package Modelos.Inventario;
 
 import Modelos.Producto.ProductoInterface;
+import Excepciones.InventarioInsuficienteExcepcion;
+import Excepciones.ProductoNoEncontradoExcepcion;
 import java.util.List;
 
 /**
@@ -21,23 +23,27 @@ public abstract class GestorInventario {
      * Método abstracto para añadir un producto al inventario.
      * @param producto El producto a añadir
      * @return true si se añadió exitosamente, false en caso contrario
+     * @throws InventarioInsuficienteExcepcion Si no hay suficiente capacidad para el producto
      */
-    public abstract boolean añadirProducto(ProductoInterface producto);
+    public abstract boolean añadirProducto(ProductoInterface producto) throws InventarioInsuficienteExcepcion;
     
     /**
      * Método abstracto para eliminar un producto del inventario.
      * @param idProducto El ID del producto a eliminar
      * @return true si se eliminó exitosamente, false en caso contrario
+     * @throws ProductoNoEncontradoExcepcion Si el producto no existe en el inventario
      */
-    public abstract boolean eliminarProducto(String idProducto);
+    public abstract boolean eliminarProducto(String idProducto) throws ProductoNoEncontradoExcepcion;
     
     /**
      * Método abstracto para actualizar el stock de un producto.
      * @param idProducto El ID del producto
      * @param nuevaCantidad La nueva cantidad en stock
      * @return true si se actualizó exitosamente, false en caso contrario
+     * @throws ProductoNoEncontradoExcepcion Si el producto no existe en el inventario
+     * @throws InventarioInsuficienteExcepcion Si no hay suficiente capacidad para la nueva cantidad
      */
-    public abstract boolean actualizarStock(String idProducto, Integer nuevaCantidad);
+    public abstract boolean actualizarStock(String idProducto, Integer nuevaCantidad) throws ProductoNoEncontradoExcepcion, InventarioInsuficienteExcepcion;
     
     /**
      * Método concreto para obtener el nombre del inventario.
